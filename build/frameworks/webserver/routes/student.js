@@ -1,0 +1,35 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const studentController_1 = __importDefault(require("../../.././adapters/controllers/studentController"));
+const studentDbRepository_1 = require("../../../app/repositories/studentDbRepository");
+const studentsRepoMongoDb_1 = require("../../../frameworks/database/mongodb/repositories/studentsRepoMongoDb");
+const authService_1 = require("../../../frameworks/services/authService");
+const authServicesInterface_1 = require("../../../app/services/authServicesInterface");
+const cloudServiceInterface_1 = require("../../../app/services/cloudServiceInterface");
+const s3CloudService_1 = require("../../../frameworks/services/s3CloudService");
+const multer_1 = __importDefault(require("../middlewares/multer"));
+const redisCaching_1 = require("../middlewares/redisCaching");
+const redisCacheRepository_1 = require("../../../frameworks/database/redis/redisCacheRepository");
+const cachedRepoInterface_1 = require("../../../app/repositories/cachedRepoInterface");
+const userAuth_1 = __importDefault(require("../middlewares/userAuth"));
+const contactDbRepository_1 = require("../../../app/repositories/contactDbRepository");
+const contactsRepoMongoDb_1 = require("../../../frameworks/database/mongodb/repositories/contactsRepoMongoDb");
+const roleCheckMiddleware_1 = __importDefault(require("../middlewares/roleCheckMiddleware"));
+const studentRouter = (redisClient) => {
+    const router = express_1.default.Router();
+    const controller = (0, studentController_1.default)(authServicesInterface_1.authServiceInterface, authService_1.authService, studentDbRepository_1.studentDbRepository, studentsRepoMongoDb_1.studentRepositoryMongoDB, contactDbRepository_1.contactDbInterface, contactsRepoMongoDb_1.contactRepositoryMongodb, cloudServiceInterface_1.cloudServiceInterface, s3CloudService_1.s3Service, cachedRepoInterface_1.cacheRepositoryInterface, redisCacheRepository_1.redisCacheRepository, redisClient);
+    router.patch('/change-password', userAuth_1.default, controller.changePassword);
+    router.put('/update-profile', userAuth_1.default, multer_1.default.single('image'), controller.updateProfile);
+    router.get('/get-student-details', userAuth_1.default, (0, redisCaching_1.cachingMiddleware)(redisClient), controller.getStudentDetails);
+    router.get('/get-all-students', userAuth_1.default, controller.getAllStudents);
+    router.patch('/block-student/:studentId', userAuth_1.default, (0, roleCheckMiddleware_1.default)('admin'), controller.blockStudent);
+    router.patch('/unblock-student/:studentId', userAuth_1.default, (0, roleCheckMiddleware_1.default)('admin'), controller.unblockStudent);
+    router.get('/get-all-blocked-students', userAuth_1.default, (0, roleCheckMiddleware_1.default)('admin'), controller.getAllBlockedStudents);
+    router.post('/contact-us', controller.addContact);
+    return router;
+};
+exports.default = studentRouter;

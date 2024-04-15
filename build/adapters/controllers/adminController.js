@@ -1,0 +1,45 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_async_handler_1 = __importDefault(require("express-async-handler"));
+const dashBoardData_1 = require("../../app/usecases/admin/dashBoardData");
+const adminController = (adminDbRepository, adminDbRepositoryImpl, courseDbRepository, courseDbRepositoryImpl, instructorDbRepository, instructorDbRepositoryImpl, studentDbRepository, studentDbRepositoryImpl, paymentDbRepository, paymentDbRepositoryImpl, categoryDbRepository, categoryDbRepositoryImpl) => {
+    const dbRepositoryAdmin = adminDbRepository(adminDbRepositoryImpl());
+    const dbRepositoryCourse = courseDbRepository(courseDbRepositoryImpl());
+    const dbRepositoryInstructor = instructorDbRepository(instructorDbRepositoryImpl());
+    const dbRepositoryStudent = studentDbRepository(studentDbRepositoryImpl());
+    const dbRepositoryPayment = paymentDbRepository(paymentDbRepositoryImpl());
+    const dbRepositoryCategory = categoryDbRepository(categoryDbRepositoryImpl());
+    const getDashBoardDetails = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, dashBoardData_1.getDashBoardDetailsU)(dbRepositoryCourse, dbRepositoryInstructor, dbRepositoryStudent, dbRepositoryPayment);
+        res.status(200).json({
+            status: 'success',
+            message: 'Successfully retrieved dashboard details',
+            data: response
+        });
+    }));
+    const getGraphDetails = (0, express_async_handler_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield (0, dashBoardData_1.getGraphDetailsU)(dbRepositoryCourse, dbRepositoryCategory, dbRepositoryPayment);
+        res.status(200).json({
+            status: 'success',
+            message: 'Successfully retrieved graph details',
+            data: response
+        });
+    }));
+    return {
+        getDashBoardDetails,
+        getGraphDetails
+    };
+};
+exports.default = adminController;
