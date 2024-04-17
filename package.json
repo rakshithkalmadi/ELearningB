@@ -58,5 +58,6 @@
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.8"
   },
-  "repository": "y"
+  "repository": "y",
+  "packageManager": "yarn@4.1.1+sha256.f3cc0eda8e5560e529c7147565b30faa43b4e472d90e8634d7134a37c7f59781"
 }
